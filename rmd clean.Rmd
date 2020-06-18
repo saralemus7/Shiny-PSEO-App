@@ -1,0 +1,56 @@
+---
+title: "Data"
+author: "Sara"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, eval = TRUE,
+                      message = FALSE, warning = FALSE, comment = NA,
+                      fig.width=8, fig.height=6)
+```
+
+```{r}
+library(tidyverse)
+library(readxl)
+library(naniar)
+```
+
+```{r}
+pseo_co <- read_excel("~/Downloads/pseo_co.xlsx", skip = 4)
+cip_info <- read_csv("~/Downloads/label_cipcode.csv")
+```
+
+```{r}
+pseo <- pseo_co %>% 
+  filter(agg_level_pseo == 48)
+
+pseo <- pseo %>% 
+  mutate(label_cipcode = str_replace_all(pseo$label_cipcode, pattern = "\\n", " ")) %>% 
+  mutate(cipcode_twodigit = str_replace_all(pseo$cipcode, pattern = "\\..*", "")) 
+```
+
+
+```{r}
+cip_2d <- cip_info %>% 
+  slice(1:48)
+pseo <- pseo %>% 
+  left_join(cip_2d, by = c("cipcode_twodigit" = "CIPFamily")) 
+```
+
+
+```{r}
+pseo %>% 
+  group_by(label) %>% 
+  filter(status_y1_earnings == "1", degree_level == "05", label == "Engineering") %>% 
+  summarise(med =  median(as.numeric(y1_p50_earnings))) %>% 
+  as.character(as.vector(pseo[1,]))
+```
+
+
+
+
+
+
+
+
