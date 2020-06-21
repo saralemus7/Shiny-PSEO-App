@@ -28,6 +28,9 @@ pseo <- pseo_co %>%
 pseo <- pseo %>% 
   mutate(label_cipcode = str_replace_all(pseo$label_cipcode, pattern = "\\n", " ")) %>% 
   mutate(cipcode_twodigit = str_replace_all(pseo$cipcode, pattern = "\\..*", "")) 
+
+pseo %>% 
+  count(label_degree_level)
 ```
 
 
@@ -42,15 +45,68 @@ pseo <- pseo %>%
 ```{r}
 pseo %>% 
   group_by(label) %>% 
-  filter(status_y1_earnings == "1", degree_level == "05", label == "Engineering") %>% 
-  summarise(med =  median(as.numeric(y1_p50_earnings))) %>% 
-  as.character(as.vector(pseo[1,]))
+  filter(status_y1_earnings == "1", label_degree_level == "Masters", label == "History") %>% 
+  select(y1_p50_earnings, y5_p50_earnings, y10_p50_earnings)
+  
+```
+
+```{r}
+test <- pseo %>% 
+  group_by(label) %>% 
+  filter(status_y1_earnings == "1", status_y5_earnings == "1", status_y10_earnings == "1", 
+         degree_level == "05", label == "Engineering") %>% 
+  summarise(medy1 =  mean(as.numeric(y1_p50_earnings)),
+            medy5 =  mean(as.numeric(y5_p50_earnings)),
+            medy10 =  mean(as.numeric(y10_p50_earnings))) 
+```
+
+```{r}
+test_long <- test %>% 
+  pivot_longer(cols = c(medy1, medy5, medy10), names_to = "Type", values_to = "Amount")
+ggplot(data = test_long, mapping = aes(x = Type, y = Amount, fill = Type)) + geom_bar(stat = "identity")
 ```
 
 
+```{r}
+pseo %>% 
+  filter(label == "Engineering") %>% 
+  count(label_degree_level)
+
+pseo %>%
+        group_by(label) %>% 
+        filter(status_y1_earnings == "1", status_y5_earnings == "1", status_y10_earnings == "1", 
+               label_degree_level == "Masters", label == "Engineering") %>% 
+  summarise(medy1 =  mean(as.numeric(y1_p50_earnings)),
+            medy5 =  mean(as.numeric(y5_p50_earnings)),
+            medy10 =  mean(as.numeric(y10_p50_earnings))) 
+
+pseo %>%
+        group_by(label) %>% 
+        filter(status_y1_earnings == "1", status_y5_earnings == "1", status_y10_earnings == "1",
+               label_degree_level == "Masters") %>% 
+        summarise(med_y10 = mean(as.numeric(y10_p50_earnings)))  %>% 
+        arrange(-med_y10)
+  
+  nrow(filter(.data = pseo, label == "Foreign Languages, Literatures, and Linguistics", label_degree_level == "Post-Masters Certificate")) == 0
+```
 
 
+```{r}
+plot_data <- pseo %>% 
+            group_by(label) %>% 
+            filter(status_y1_earnings == "1", status_y5_earnings == "1", status_y10_earnings == "1", 
+                   label_degree_level == "Masters", label == "Engineering") %>% 
+            summarise(medy1 =  mean(as.numeric(y1_p50_earnings)),
+                      medy5 =  mean(as.numeric(y5_p50_earnings)),
+                      medy10 =  mean(as.numeric(y10_p50_earnings))) 
+plot_data_long <- plot_data %>% 
+    pivot_longer(cols = c(medy1, medy5, medy10), names_to = "Type", values_to = "Amount")
+ggplot(plot_data_long, mapping = aes(x = Type, y = Amount, fill = Type)) +
+            geom_bar(stat = "identity") +
+            scale_y_continuous(limit = c(0, 110000)) + scale_fill_brewer(palette = "Set2")
+```
 
-
-
+```{r}
+pseo[pseo$label=="Engineering", label_degree_level]
+```
 
