@@ -26,7 +26,6 @@ pseo <- pseo_co %>%
   filter(agg_level_pseo == 48)
 
 pseo <- pseo %>% 
-  mutate(label_cipcode = str_replace_all(pseo$label_cipcode, pattern = "\\n", " ")) %>% 
   mutate(cipcode_twodigit = str_replace_all(pseo$cipcode, pattern = "\\..*", "")) 
 
 pseo %>% 
@@ -61,16 +60,15 @@ test <- pseo %>%
 ```
 
 ```{r}
-test_long <- test %>% 
-  pivot_longer(cols = c(medy1, medy5, medy10), names_to = "Type", values_to = "Amount")
-ggplot(data = test_long, mapping = aes(x = Type, y = Amount, fill = Type)) + geom_bar(stat = "identity")
+plot_data_long <- plot_data_long %>% 
+            mutate(Type = factor(Type, levels = c("medy1", "medy5", "medy10")))
 ```
 
 
 ```{r}
 pseo %>% 
-  filter(label == "Engineering") %>% 
-  count(label_degree_level)
+  filter(label == "English Language and Literature/Letters") %>% 
+  select(label_degree_level, status_y1_earnings, status_y5_earnings, status_y10_earnings) 
 
 pseo %>%
         group_by(label) %>% 
@@ -107,6 +105,19 @@ ggplot(plot_data_long, mapping = aes(x = Type, y = Amount, fill = Type)) +
 ```
 
 ```{r}
-pseo[pseo$label=="Engineering", label_degree_level]
+options <- pseo %>%
+    group_by(label) %>% 
+    filter(status_y1_earnings == "1", status_y5_earnings == "1", status_y10_earnings == "1", label == "Engineering") %>% 
+  distinct(label_degree_level)
+
+options <- as.character(as_vector(options$label_degree_level))
 ```
+
+
+
+
+
+
+
+
 
