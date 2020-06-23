@@ -23,7 +23,7 @@ cip_info <- read_csv("~/Downloads/label_cipcode.csv")
 
 ```{r}
 pseo <- pseo_co %>% 
-  filter(agg_level_pseo == 48)
+  filter(agg_level_pseo == 48, status_y1_earnings == "1", status_y5_earnings == "1", status_y10_earnings == "1")
 
 pseo <- pseo %>% 
   mutate(cipcode_twodigit = str_replace_all(pseo$cipcode, pattern = "\\..*", "")) 

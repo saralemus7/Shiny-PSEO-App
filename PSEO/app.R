@@ -5,6 +5,8 @@ library(shinythemes)
 library(DT)
 library(htmltools)
 
+pseo <- readRDS("data/pseo.rds")
+
 ui <- fluidPage(
     theme = shinytheme("simplex"),
     navbarPage(title = "PSEO Colorado Data", 
@@ -12,7 +14,7 @@ ui <- fluidPage(
                tabPanel("Field Explorer", 
                         sidebarLayout(
                             sidebarPanel(
-                                helpText("Select your field and press
+                                helpText("Select your field(s) and press
                                          submit for more information"),
                                 
                                 selectInput("major",
@@ -39,7 +41,11 @@ ui <- fluidPage(
                             mainPanel(
                                 htmlOutput("selected"),
                                 htmlOutput("info"),
-                                plotOutput("salaries")
+                                br(),
+                                br(),
+                                plotOutput("salaries"),
+                                br(),
+                                htmlOutput("userHelp")
                             )
                         )),
                
@@ -64,7 +70,7 @@ server <- function(input, output, session) {
     observe({
         options <- pseo %>%
             group_by(label) %>% 
-            filter(status_y1_earnings == "1", status_y5_earnings == "1", status_y10_earnings == "1", label == input$major) %>% 
+            filter(label == input$major) %>% 
             distinct(label_degree_level)
         options <- as.character(as_vector(options$label_degree_level))
         updateSelectInput(session = session, inputId = "degree", choices = options)
@@ -74,7 +80,7 @@ server <- function(input, output, session) {
     observe({
         major_options <- pseo %>%
             group_by(label) %>% 
-            filter(status_y1_earnings == "1", status_y5_earnings == "1", status_y10_earnings == "1", label_degree_level == input$degree) %>% 
+            filter(label_degree_level == input$degree) %>% 
             distinct(label) 
         major_options <- as.character(as_vector(major_options$label))
         #Remove the already selected major as an option
@@ -84,7 +90,7 @@ server <- function(input, output, session) {
     
     #Displaying the major
     selected_text <- eventReactive(input$submit,{ 
-        HTML(paste("<b>","You have selected: ","</b>", input$major, "<br>"))
+        HTML(paste("<h3>","You have selected: ", "</h3>","<h4>", "<b>", input$major,":",input$degree, "</h4>","</b>", "<br>"))
     })
     output$selected <- renderUI({selected_text()})
     
@@ -92,9 +98,22 @@ server <- function(input, output, session) {
     description_text <- eventReactive(input$submit, { 
         def <- pseo[(pseo$label == input$major), "CIPDefinition"]
         def <- as.character(as.vector(def[1,]))
-        HTML(paste("<b>", "Description of program: ", "</b>", def))
+        HTML(paste("<h3>", "Description of program: ", "</h3>","<b>","<h4>" ,def,"</b>","</h4>", 
+                   "<br>","<h3>","Salary Explorer:", "</h3>"))
     })
     output$info <- renderUI({description_text()})
+    
+    #Displaying help text that lets user know about comparision feature
+    #if they don't select it 
+    help_text <- eventReactive(input$submit, { 
+        if(input$multiple == FALSE){
+        h5("If you would like to compare your selected
+            field to others within the same degree level,
+            please use the checkbox on the right.")
+        }
+    })
+    output$userHelp <- renderUI({help_text()})
+    
     
     observeEvent(input$submit,{
         
@@ -105,25 +124,26 @@ server <- function(input, output, session) {
         #caclulating the medians + making the df long
         plot_data <- pseo %>% 
             group_by(label) %>% 
-            filter(status_y1_earnings == "1", status_y5_earnings == "1", status_y10_earnings == "1", 
-                   label_degree_level == input$degree, str_detect(label, majors)) %>% 
-            summarise(year1 =  mean(as.numeric(y1_p50_earnings)),
-                      year5 =  mean(as.numeric(y5_p50_earnings)),
-                      year10 =  mean(as.numeric(y10_p50_earnings))) 
+            filter(label_degree_level == input$degree, str_detect(label, majors)) %>% 
+            summarise(`1 year` =  mean(as.numeric(y1_p50_earnings)),
+                      `5 years` =  mean(as.numeric(y5_p50_earnings)),
+                      `10 years` =  mean(as.numeric(y10_p50_earnings))) 
         
         plot_data_long <- plot_data %>% 
-            pivot_longer(cols = c(year1, year5, year10), names_to = "Type", values_to = "Amount")
+            pivot_longer(cols = c(`1 year`, `5 years`, `10 years`), names_to = "Type", values_to = "Amount")
         
         #fomatting Type for the plot
         plot_data_long <- plot_data_long %>% 
-            mutate(Type = factor(Type, levels = c("year1", "year5", "year10"))) 
+            mutate(Type = factor(Type, levels = c("1 year", "5 years", "10 years"))) 
         
         plot1 <- ggplot(plot_data_long, mapping = aes(x = Type, y = Amount, fill = label)) +
-            geom_bar(stat = "identity", position = "dodge") +
-            geom_text(aes(label = str_c("$", format(round(as.numeric(Amount), 0), big.mark = ","))), position = position_dodge(width = 0.9), vjust = -0.25) +
+            geom_bar(stat = "identity", width = 0.7, position=position_dodge(width = 0.85)) +
+            geom_text(aes(label = str_c("$", format(round(as.numeric(Amount), 0), big.mark = ","))), 
+                      position = position_dodge(width = 0.9), vjust = -0.25) +
             theme_light(base_size = 15) +
             scale_y_continuous(limit = c(0, 155000)) + scale_fill_brewer(palette = "Set2") +
-            labs(title = "Average Median Earnings", subtitle = "1, 5, and 10 Years Post-Graduation", x = "Years After Graduation", y = "Average Median Earnings", fill = "Major")
+            labs(title = "Average Median Earnings", subtitle = "1, 5, and 10 Years Post-Graduation", 
+                 x = "Years After Graduation", y = "Average Median Earnings", fill = "Major")
         
         output$salaries <- renderPlot({
             plot1
@@ -133,8 +153,8 @@ server <- function(input, output, session) {
     #DataTable for Info Tab
     output$table <- renderDataTable({
         pseo %>% 
-            filter(status_y1_earnings == "1", status_y5_earnings == "1", status_y10_earnings == "1") %>%
-            select(label_cipcode,label, label_grad_cohort, label_institution, label_degree_level, y1_p50_earnings, y5_p50_earnings, y10_p50_earnings) 
+            select(label_cipcode,label, label_grad_cohort, label_institution, label_degree_level,
+                   y1_p50_earnings, y5_p50_earnings, y10_p50_earnings) 
     })
     
     
