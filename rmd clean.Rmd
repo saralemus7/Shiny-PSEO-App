@@ -27,9 +27,6 @@ pseo <- pseo_co %>%
 
 pseo <- pseo %>% 
   mutate(cipcode_twodigit = str_replace_all(pseo$cipcode, pattern = "\\..*", "")) 
-
-pseo %>% 
-  count(label_degree_level)
 ```
 
 
@@ -37,7 +34,12 @@ pseo %>%
 cip_2d <- cip_info %>% 
   slice(1:48)
 pseo <- pseo %>% 
-  left_join(cip_2d, by = c("cipcode_twodigit" = "CIPFamily")) 
+  left_join(cip_2d, by = c("cipcode_twodigit" = "CIPFamily"))
+```
+
+```{r}
+pseo <- pseo %>% 
+  mutate(label = str_replace(label, pattern = "Engineering Technologies and Engineering-Related Fields", replacement = "Engineering"))
 ```
 
 
@@ -88,36 +90,67 @@ pseo %>%
   nrow(filter(.data = pseo, label == "Foreign Languages, Literatures, and Linguistics", label_degree_level == "Post-Masters Certificate")) == 0
 ```
 
+```{r}
+test <- c("Psychology","Visual and Performing Arts")
+new_test <- c("Engineering", test)
+new_test <- paste(new_test, collapse = "|")
+
+```
 
 ```{r}
 plot_data <- pseo %>% 
             group_by(label) %>% 
             filter(status_y1_earnings == "1", status_y5_earnings == "1", status_y10_earnings == "1", 
-                   label_degree_level == "Masters", label == "Engineering") %>% 
+                   label_degree_level == "Masters", str_detect(label, new_test)) %>% 
             summarise(medy1 =  mean(as.numeric(y1_p50_earnings)),
                       medy5 =  mean(as.numeric(y5_p50_earnings)),
                       medy10 =  mean(as.numeric(y10_p50_earnings))) 
 plot_data_long <- plot_data %>% 
     pivot_longer(cols = c(medy1, medy5, medy10), names_to = "Type", values_to = "Amount")
-ggplot(plot_data_long, mapping = aes(x = Type, y = Amount, fill = Type)) +
-            geom_bar(stat = "identity") +
+ggplot(plot_data_long, mapping = aes(x = Type, y = Amount, fill = label)) +
+            geom_bar(stat = "identity", position = "dodge") +
             scale_y_continuous(limit = c(0, 110000)) + scale_fill_brewer(palette = "Set2")
 ```
 
 ```{r}
-options <- pseo %>%
+pseo %>%
     group_by(label) %>% 
     filter(status_y1_earnings == "1", status_y5_earnings == "1", status_y10_earnings == "1", label == "Engineering") %>% 
-  distinct(label_degree_level)
+  distinct(label_grad_cohort)
 
-options <- as.character(as_vector(options$label_degree_level))
+#options <- as.character(as_vector(options$label_degree_level))
+```
+
+
+```{r}
+pseo %>%
+    group_by(label) %>% 
+    filter(status_y1_earnings == "1", status_y5_earnings == "1", status_y10_earnings == "1", label == "Engineering", label_grad_cohort == "2001-2005") %>% 
+    summarise(medy1 =  mean(as.numeric(y1_p50_earnings)),
+            medy5 =  mean(as.numeric(y5_p50_earnings)),
+            medy10 =  mean(as.numeric(y10_p50_earnings))) 
+  
 ```
 
 
 
+```{r}
+pseo %>%
+        group_by(label) %>% 
+        filter(status_y1_earnings == "1", status_y5_earnings == "1", status_y10_earnings == "1", 
+               label_degree_level == "Masters", label == "Engineering" | label == "Psychology")  
+```
 
+```{r}
+test1 <- "engineering"
+test2 <- c("math", "science", "engineering")
+test2 <- test2[!test2 %in% test1]
+```
 
-
-
+```{r}
+pseo %>% 
+  filter(status_y1_earnings == "1", status_y5_earnings == "1", status_y10_earnings == "1") %>%
+  select(label_cipcode,label, label_grad_cohort, label_degree_level, y1_p50_earnings, y5_p50_earnings, y10_p50_earnings)
+```
 
 
