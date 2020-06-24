@@ -20,12 +20,14 @@ In addition, there is an information tab which allows users to read about the pu
 
 
 ## About the data
-##### From the info section in the app:
-This app is based off of data from the US Census Bureau study known as Post-Secondary Employment Outcomes (PSEO). The data set used for this app in particular contains information on graduates from post-secondary institutions located in the state of Colorado. This includes information about their major, graduation cohort, industry, degree level, and quartile earnings 1,5, and 10 years after graduation.  The original data set has been filtered for use of this app because for many observations, earnings data is not available for all years. According to the Census Bureau, this is mainly because of “insufficient labor market attachment in the reference year.” The Census Bureau combined transcript data given by different schools in Colorado with their national database containing information about jobs to create an informative data set about college students and their future employment tracks.
+##### Modified from the info section in the app:
+This app is based off of data from the US Census Bureau study known as Post-Secondary Employment Outcomes (PSEO). The data set used for this app in particular contains information on graduates from post-secondary institutions located in the state of Colorado. This includes information about their major, graduation cohort, industry, degree level, and quartile earnings 1,5, and 10 years after graduation.  The original data set has been filtered for use of this app because for many observations, earnings data is not available for all years. According to the Census Bureau, this is mainly because of “insufficient labor market attachment in the reference year.” The Census Bureau combined transcript data given by different schools in Colorado with their national database containing information about jobs to create an informative data set about college students and their future employment tracks. An additional .csv file, downloaded from the same page, known as `label_cipcode.csv`, contains more detailed information about each field and a short description. Since the original dataset contained information on very specific majors and their 4-digit [CIP codes](https://lehd.ces.census.gov/data/schema/V4.5.0-draft/lehd_public_use_schema.html#_cip_code), the secondary file was joined with the original to create a dataset whose observations could be grouped by a more general 2-digit CIP code to aggregate information and make the data easier to explore for the user.
 
 ### References
 
 [PSEO data](https://lehd.ces.census.gov/data/pseo_experimental.html) 
+
+[PSEO schema](https://lehd.ces.census.gov/data/schema/V4.5.0-draft/lehd_public_use_schema.html#)
 
 [Shiny cheat sheet](https://shiny.rstudio.com/images/shiny-cheatsheet.pdf)
 
