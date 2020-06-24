@@ -387,13 +387,14 @@ summary {
 </div>
 <div id="about-the-data" class="section level2">
 <h2>About the data</h2>
-<div id="from-the-info-section-in-the-app" class="section level5">
-<h5>From the info section in the app:</h5>
-<p>This app is based off of data from the US Census Bureau study known as Post-Secondary Employment Outcomes (PSEO). The data set used for this app in particular contains information on graduates from post-secondary institutions located in the state of Colorado. This includes information about their major, graduation cohort, industry, degree level, and quartile earnings 1,5, and 10 years after graduation. The original data set has been filtered for use of this app because for many observations, earnings data is not available for all years. According to the Census Bureau, this is mainly because of “insufficient labor market attachment in the reference year.” The Census Bureau combined transcript data given by different schools in Colorado with their national database containing information about jobs to create an informative data set about college students and their future employment tracks.</p>
+<div id="modified-from-the-info-section-in-the-app" class="section level5">
+<h5>Modified from the info section in the app:</h5>
+<p>This app is based off of data from the US Census Bureau study known as Post-Secondary Employment Outcomes (PSEO). The data set used for this app in particular contains information on graduates from post-secondary institutions located in the state of Colorado. This includes information about their major, graduation cohort, industry, degree level, and quartile earnings 1,5, and 10 years after graduation. The original data set has been filtered for use of this app because for many observations, earnings data is not available for all years. According to the Census Bureau, this is mainly because of “insufficient labor market attachment in the reference year.” The Census Bureau combined transcript data given by different schools in Colorado with their national database containing information about jobs to create an informative data set about college students and their future employment tracks. An additional .csv file, downloaded from the same page, known as <code>label_cipcode.csv</code>, contains more detailed information about each field and a short description. Since the original dataset contained information on very specific majors and their 4-digit <a href="https://lehd.ces.census.gov/data/schema/V4.5.0-draft/lehd_public_use_schema.html#_cip_code">CIP codes</a>, the secondary file was joined with the original to create a dataset whose observations could be grouped by a more general 2-digit CIP code to aggregate information and make the data easier to explore for the user.</p>
 </div>
 <div id="references" class="section level3">
 <h3>References</h3>
 <p><a href="https://lehd.ces.census.gov/data/pseo_experimental.html">PSEO data</a></p>
+<p><a href="https://lehd.ces.census.gov/data/schema/V4.5.0-draft/lehd_public_use_schema.html#">PSEO schema</a></p>
 <p><a href="https://shiny.rstudio.com/images/shiny-cheatsheet.pdf">Shiny cheat sheet</a></p>
 <p><a href="https://stackoverflow.com/questions/33683862/first-entry-from-string-split">Split a string</a></p>
 <p><a href="https://stackoverflow.com/questions/28653428/r-shiny-display-specific-rows-from-a-dataset">Format text output</a></p>
