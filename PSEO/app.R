@@ -130,7 +130,7 @@ server <- function(input, output, session) {
         if(input$multiple == FALSE){
         h5("If you would like to compare your selected
             field to others within the same degree level,
-            please use the checkbox on the right.")
+            please use the checkbox on the left.")
         }
     })
     output$userHelp <- renderUI({help_text()})
