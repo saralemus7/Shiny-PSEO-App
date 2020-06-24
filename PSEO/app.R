@@ -10,7 +10,7 @@ pseo <- readRDS("data/pseo.rds")
 ui <- fluidPage(
     theme = shinytheme("simplex"),
     navbarPage(title = "PSEO Colorado Data", 
-               #main panel
+               #main section
                tabPanel("Field Explorer", 
                         sidebarLayout(
                             sidebarPanel(
@@ -49,11 +49,24 @@ ui <- fluidPage(
                             )
                         )),
                
-               #info panel
+               #info section
                tabPanel("Info",
-                        h2("About the data:"),
-                        "This app is based off of data from the US Census Bureau
-                        study known as Post-Secondary Employment Outcomes (PSEO).",
+                        h5("About the data:"),
+                        "This app is based off of data from the US Census Bureau study known as Post-Secondary Employment Outcomes (PSEO). 
+                        The data set used for this app in particular contains information on graduates from post-secondary institutions located in the state of Colorado. 
+                        This includes information about their major, graduation cohort, industry, degree level, and quartile earnings 1,5, and 10 years after graduation. 
+                        Please check the “View data” option if you would like to further explore the data. 
+                        The original dataset has been filtered for use of this app because for many observations, earnings data is not available for all years. 
+                        According to the Census Bureau, this is mainly because of “insufficient labor market attachment in the reference year.” 
+                        The Census Bureau combined transcript data given by different schools in Colorado with their national database containing information 
+                        about jobs to create a really interesting and informative dataset about college students and their future employment tracks.", br(),
+                        a(href="https://lehd.ces.census.gov/data/pseo_experimental.html", "Census Bureau PSEO Information Page"), br(),
+                        br(), br(), h5("About the app:"),
+                        "The purpose of this app is to allow you to pick a field which is of interest and explore how average median earnings for that field change 
+                        over time and by degree level. There is a comparison feature which, when selected, allows you to select up to 3 other fields within the same 
+                        degree level and better understand how your selected field compares to others in terms of income for each measurement period. The goal is that 
+                        this app will allow you to make more informed decisions about your education and future opportunities by exploring pre-existing data of 
+                        Colorado graduates.", 
                         checkboxInput("table", 
                                       "View Data",
                                       value = FALSE),
@@ -76,7 +89,7 @@ server <- function(input, output, session) {
         updateSelectInput(session = session, inputId = "degree", choices = options)
     })
     
-    #Creating a select button that updates comparision options based on degree level choice
+    #Creating a select button that updates comparision options based on major + degree level choice
     observe({
         major_options <- pseo %>%
             group_by(label) %>% 
