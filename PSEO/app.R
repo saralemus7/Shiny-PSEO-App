@@ -19,8 +19,7 @@ ui <- fluidPage(
                                 
                                 selectInput("major",
                                             "Select field:",
-                                            choices = pseo$label,
-                                            selected = NULL),
+                                            choices = pseo$label),
                                 selectInput("degree",
                                             "Degree level:",
                                             choices = pseo$label_degree_level),
