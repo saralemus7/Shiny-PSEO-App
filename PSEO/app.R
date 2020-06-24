@@ -142,7 +142,7 @@ server <- function(input, output, session) {
         majors <- c(input$major, input$major2)
         majors <- paste(majors, collapse = "|")
         
-        #caclulating the medians + making the df long
+        #caclulating the means + making the df long
         plot_data <- pseo %>% 
             group_by(label) %>% 
             filter(label_degree_level == input$degree, str_detect(label, majors)) %>% 

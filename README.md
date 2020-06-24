@@ -2,7 +2,7 @@
 
 ## App Link
 
-The app can be found here:
+The app can be found [here.](https://saralemus7.shinyapps.io/PSEO/)
 
 ## Introduction
 
