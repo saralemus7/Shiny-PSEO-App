@@ -9,6 +9,7 @@ pseo <- readRDS("data/pseo.rds")
 
 ui <- fluidPage(
     theme = shinytheme("simplex"),
+    useShinyalert(),
     navbarPage(title = "PSEO Colorado Data", 
                #main section
                tabPanel("Field Explorer", 
@@ -63,11 +64,10 @@ ui <- fluidPage(
                         br(), br(), h5("About the app:"),
                         "The purpose of this app is to allow you to pick a field which is of interest and explore how average median earnings for that field change 
                         over time and by degree level. There is a comparison feature which, when selected, allows you to select up to 3 other fields within the same 
-                        degree level and better understand how your selected field compares to others in terms of income for each measurement period. The goal is that 
-                        this app will allow you to make more informed decisions about your education and future opportunities by exploring pre-existing data of 
-                        Colorado graduates.", 
+                        degree level and better understand how your selected field compares to others in terms of income for each measurement period. The goal of this app is 
+                        to help you to make more informed decisions about your education and future opportunities by exploring pre-existing data from Colorado graduates.", 
                         checkboxInput("table", 
-                                      "View Data",
+                                      "View Raw Data",
                                       value = FALSE),
                         conditionalPanel(condition = "input.table",
                                          dataTableOutput("table"))
@@ -77,6 +77,15 @@ ui <- fluidPage(
 
 
 server <- function(input, output, session) {
+    
+    #Handling invalid major errors
+    observeEvent(input$submit,{
+        if(!(input$major %in% pseo$label)){
+        shinyalert(title = "Error",
+                   text = "Invalid major selection.",
+                   type = "error")
+        }
+    })
     
     #Creating a select button that updates degree options based on major choice
     observe({
